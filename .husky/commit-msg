@@ -1,0 +1,70 @@
+
+export EDITOR="subl -n -w"
+export GIT_EDITOR="subl -n -w"
+
+COMMIT_MSG_FILE=$1
+
+# Определяем контекст операции Git
+GIT_OPERATION_CONTEXT=""
+if [ -f ".git/MERGE_MSG" ]; then
+  GIT_OPERATION_CONTEXT="merge"
+elif [ -f ".git/SQUASH_MSG" ]; then
+  GIT_OPERATION_CONTEXT="squash"
+elif [ -d ".git/rebase-merge" ]; then
+  GIT_OPERATION_CONTEXT="rebase"
+fi
+
+validate_and_format() {
+  # Проверка через commitlint
+  if ! npx commitlint --edit "$1"; then
+    return 1
+  fi
+
+  # Форматирование сообщения
+  sed -Ei '
+    s/^[[:space:].]+//
+    s/[[:space:].]+$//
+    s/^([^:]*:)/\L\1/
+    s/: +/: /
+  ' "$1"
+
+  return 0
+}
+
+handle_editor() {
+  TEMP_FILE=$(mktemp)
+  cp "$1" "$TEMP_FILE"
+
+  case "$GIT_OPERATION_CONTEXT" in
+    "rebase")
+      GIT_SEQUENCE_EDITOR="sed -i -e '1s/^pick/edit/'" \
+      GIT_EDITOR="nvim" \
+        git rebase --continue || true
+      ;;
+    *)
+      subl -n -w "$TEMP_FILE"
+      ;;
+  esac
+
+  cp "$TEMP_FILE" "$1"
+  rm -f "$TEMP_FILE"
+}
+
+MAX_ATTEMPTS=3
+ATTEMPT=1
+
+while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+  if validate_and_format "$COMMIT_MSG_FILE"; then
+    break
+  else
+    echo "✖ Validation failed (attempt $ATTEMPT/$MAX_ATTEMPTS)"
+
+    if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+      echo "✖ Maximum attempts reached. Aborting."
+      exit 1
+    fi
+
+    handle_editor "$COMMIT_MSG_FILE"
+    ATTEMPT=$((ATTEMPT+1))
+  fi
+done
