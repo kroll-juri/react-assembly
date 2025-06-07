@@ -1,11 +1,23 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["./src/*"],
-      "@components/*": ["./src/components/*"],
-      "@assets/*": ["./src/assets/*"],
-      "@pages/*": ["./src/pages/*"]
+      "@app/*": ["app/*"],
+      "@store/*": ["app/store/*"],
+      "@hooks/*": ["hooks/*"],
+      "@namespace/*": ["app/store/namespace/*"],
+      "@reducer/*": ["app/store/reducer/*"],
+      "@slice/*": ["app/store/slice/*"],
+      "@service/*": ["service/*"],
+      "@api/*": ["service/api/*"],
+      "@pages/*": ["pages/*"],
+      "@components/*": ["components/*"],
+      "@layout/*": ["components/layout/*"],
+      "@app-layout/*": ["components/layout/AppLayout/*"],
+      "@app-header/*": ["components/layout/Header/*"],
+      "@app-footer/*": ["components/layout/Footer/*"],
+      "@app-ui/*": ["components/ui/*"],
+      "@utils/*": ["utils/*"]
     },
     "target": "ESNext",
     "useDefineForClassFields": true,
@@ -24,5 +36,9 @@
     "jsx": "react-jsx"
   },
   "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }
