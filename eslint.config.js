@@ -98,7 +98,7 @@ export default defineConfig([
   globalIgnores([
     '**/node_modules/',
     '**/dist/',
-    '.commitlint.config.cjs',
+    'commitlint.config.js',
     'eslint.config.js',
   ]),
 ]);
